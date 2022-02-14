@@ -10,7 +10,7 @@ import re
 import pymsteams
 import yaml
 import logging
-from cmdbng import Client as CmdbClient
+import CmdbClient
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
@@ -120,10 +120,10 @@ class ChaosMonkey:
         self.db_path = os.path.expanduser(db_path)
         self.schedules = {}
         self._load_db()
-        self.cmdbng = CmdbClient(url=cmdb_url,
-                                 username=cmdb_username,
-                                 password=cmdb_password)
-        self.cmdbng.introspect()
+        self.cmdb = CmdbClient(url=cmdb_url,
+                               username=cmdb_username,
+                               password=cmdb_password)
+        self.cmdb.introspect()
 
     def run(self):
         self.stime = datetime.datetime.now()
@@ -133,7 +133,7 @@ class ChaosMonkey:
         self._send_notifications()
 
     def _send_notifications(self):
-        cmdb_links_repo = self.cmdbng.repo_by_name(self.cmdb_link_repo_name)
+        cmdb_links_repo = self.cmdb.repo_by_name(self.cmdb_link_repo_name)
         columns = ['next_reboot', {'name': 'server', 'columns': ['hostname']},
                    {'name': 'servers_random_reboot_schedule', 'columns': ['name', 'notifications', 'notes']}]
 
@@ -183,7 +183,7 @@ class ChaosMonkey:
 
     def _sync_schedules_with_cmdb(self):
         self.logger.debug('start  _sync_reboot_time_with_cmdb')
-        cmdb_links_repo = self.cmdbng.repo_by_name(self.cmdb_link_repo_name)
+        cmdb_links_repo = self.cmdb.repo_by_name(self.cmdb_link_repo_name)
         servers_reboot_link = cmdb_links_repo.select()
         for sl in servers_reboot_link:
             next_reboot_time = self._get_next_scheduled_reboot(str(sl['servers_random_reboot_schedule_id']), sl['id'])
@@ -330,7 +330,7 @@ class ChaosMonkey:
                 date = yield None
 
     def _get_data_from_cmdb(self):
-        cmdb_schedule = self.cmdbng.repo_by_name(self.cmdb_schedule_repo_name)
+        cmdb_schedule = self.cmdb.repo_by_name(self.cmdb_schedule_repo_name)
         search_columns = ['id', 'period', 'start_from', 'times', 'notes',
                           {'name': 'servers_random_reboot_links',
                            'columns': ['id', 'next_reboot', 'last_reboot', 'start_from']}]
