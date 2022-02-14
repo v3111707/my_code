@@ -8,6 +8,7 @@ import os
 import sys
 import re
 import pymsteams
+import yaml
 import logging
 from cmdbng import Client as CmdbClient
 from email.mime.multipart import MIMEMultipart
@@ -28,6 +29,12 @@ app = typer.Typer(add_completion=False)
 
 SUBJECT = 'The {server} will be restarted at {time}(UTC).'
 MESSAGE = SUBJECT + '\nSchedule name: {sname}, schedule notes: {snotes}\nTo cancel the reboot, connect via ssh to {server} and run "touch /srv/racoon/cancel/any_file_name"'
+
+
+def load_config_file(path: str = 'config.yaml'):
+    with open(path) as steram:
+        config = yaml.safe_load(steram)
+        return config
 
 
 def init_logger(debug: bool):
@@ -349,7 +356,7 @@ def main(debug: bool = typer.Option(False, '-d', '--debug', show_default=True),
     init_logger(debug=debug)
     logger = logging.getLogger('main')
     logger.debug('Running with --debug flag')
-    сonfig = {}
+    сonfig = load_config_file()
     chaos_monkey = ChaosMonkey(db_path=db_path,
                                cmdb_url=CMDB_URL,
                                cmdb_username=сonfig['username'],
