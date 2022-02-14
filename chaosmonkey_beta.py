@@ -9,7 +9,6 @@ import sys
 import re
 import pymsteams
 import logging
-from wg_config import Config as WgConfig
 from cmdbng import Client as CmdbClient
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -350,11 +349,11 @@ def main(debug: bool = typer.Option(False, '-d', '--debug', show_default=True),
     init_logger(debug=debug)
     logger = logging.getLogger('main')
     logger.debug('Running with --debug flag')
-    wg_config = WgConfig(agent=False)
+    сonfig = {}
     chaos_monkey = ChaosMonkey(db_path=db_path,
                                cmdb_url=CMDB_URL,
-                               cmdb_username=wg_config['username'],
-                               cmdb_password=wg_config['password'])
+                               cmdb_username=сonfig['username'],
+                               cmdb_password=сonfig['password'])
     chaos_monkey.run()
 
 
